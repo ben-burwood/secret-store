@@ -1,6 +1,6 @@
 <template>
     <label class="input" @click="copySecret">
-        <input type="text" :value="secret" readonly />
+        <input :type="showSecret ? 'text' : 'password'" :value="secret" readonly />
         <span class="label">
             <ClipboardCheck v-if="copied" color="green" :size="20" />
             <ClipboardPlus v-else :size="20" />
@@ -14,6 +14,10 @@ import { ClipboardPlus, ClipboardCheck } from "lucide-vue-next";
 
 const props = defineProps({
     secret: String,
+    showSecret: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 const copied = ref(false);

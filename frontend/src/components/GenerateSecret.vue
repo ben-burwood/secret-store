@@ -67,7 +67,7 @@ async function generateSecret() {
         const data = await response.json();
         secret.value = data.secret;
     } catch (e) {
-        toast(`Error Generating Secret : ${e.message}`);
+        toast(`Error Generating Secret : ${e.message}`, { type: "error" });
         console.error(e);
     } finally {
         loading.value = false;
