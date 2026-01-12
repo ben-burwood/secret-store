@@ -30,13 +30,6 @@ const cancelAddRow = () => {
 };
 
 async function addSecret() {
-    const key = newKey.value;
-    const value = newValue.value;
-    if (!key || !value) {
-        alert("Key and Value required");
-        return;
-    }
-
     try {
         await fetch(`${SERVER_URL}/secrets/new`, {
             method: "POST",

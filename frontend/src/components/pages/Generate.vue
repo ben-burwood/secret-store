@@ -3,5 +3,5 @@
 </template>
 
 <script setup>
-import BasicSecret from "./generate/BasicSecret.vue";
+import BasicSecret from "@/components/generate/BasicSecret.vue";
 </script>

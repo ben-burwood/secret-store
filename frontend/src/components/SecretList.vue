@@ -15,13 +15,13 @@
                 </tr>
             </thead>
             <tbody>
-                <AddSecretRow v-if="showAddRow" @refresh="fetchSecrets" @cancel="showAddRow = false" />
-                <SecretRow v-for="secret in tableSecrets" :key="secret.id" :secret="secret" :showSecret="showSecrets" @refresh="fetchSecrets" />
+                <AddSecretRow v-if="showAddRow" @refresh="emit('refresh')" @cancel="showAddRow = false" />
+                <SecretRow v-for="secret in tableSecrets" :key="secret.id" :secret="secret" :showSecret="showSecrets" @refresh="emit('refresh')" />
             </tbody>
         </table>
     </div>
 
-    <div class="flex flex-row items-center gap-2 justify-end">
+    <div v-if="tableSecrets.length > 1" class="flex flex-row items-center gap-2 justify-end">
         Sort by:
         <select v-model="sortColumn" class="select">
             <option value="id">ID</option>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, defineProps } from "vue";
 import SecretDisplay from "./SecretDisplay.vue";
 import { Trash, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-vue-next";
 import ConfirmReject from "./secrets-table/ConfirmReject.vue";
@@ -46,27 +46,23 @@ import { SERVER_URL } from "@/main";
 import TimerButton from "./secrets-table/TimerButton.vue";
 
 const showAddRow = ref(false);
-
 const showSecrets = ref(false);
 
-const secrets = ref([]);
-async function fetchSecrets() {
-    try {
-        const response = await fetch(`${SERVER_URL}/secrets`);
-        const data = await response.json();
-        secrets.value = data.secrets;
-    } catch (error) {
-        console.error("Error fetching secrets:", error);
-    }
-}
-onMounted(fetchSecrets);
+const props = defineProps({
+    secrets: {
+        type: Array,
+        required: true,
+    },
+});
+
+const emit = defineEmits(["refresh"]);
 
 const sortColumn = ref("id");
 const sortAscending = ref(true);
 const filterText = ref("");
 
 const tableSecrets = computed(() => {
-    const sortedSecrets = secrets.value.sort((a, b) => {
+    const sortedSecrets = props.secrets.sort((a, b) => {
         if (sortColumn.value === "id") {
             return sortAscending.value ? a.id - b.id : b.id - a.id;
         } else if (sortColumn.value === "key") {

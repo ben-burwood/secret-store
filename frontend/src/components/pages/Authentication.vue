@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import SecretDisplay from "./SecretDisplay.vue";
+import SecretDisplay from "@/components/SecretDisplay.vue";
 import { toast } from "vue3-toastify";
 import { SERVER_URL } from "@/main";
 

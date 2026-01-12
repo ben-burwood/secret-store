@@ -6,10 +6,10 @@
 
 <script setup lang="ts">
 import Layout from "./components/Layout.vue";
-import GenerateSecret from "./components/GenerateSecret.vue";
-import SecretList from "./components/SecretList.vue";
-import AuthKey from "./components/AuthKey.vue";
-import BackupRestore from "./components/BackupRestore.vue";
+import Generate from "./components/pages/Generate.vue";
+import Home from "./components/pages/Home.vue";
+import Authentication from "./components/pages/Authentication.vue";
+import Settings from "./components/pages/Settings.vue";
 import { ref, computed } from "vue";
 import { Page } from "@/types/page";
 
@@ -17,13 +17,13 @@ const selectedPage = ref(Page.HOME);
 const currentComponent = computed(() => {
     switch (selectedPage.value) {
         case Page.HOME:
-            return SecretList;
+            return Home;
         case Page.GENERATE:
-            return GenerateSecret;
+            return Generate;
         case Page.AUTHENTICATION:
-            return AuthKey;
+            return Authentication;
         case Page.SETTINGS:
-            return BackupRestore;
+            return Settings;
         default:
             return SecretList;
     }
