@@ -11,8 +11,10 @@
         </button>
     </div>
 
-    <button class="btn" :disabled="showSecret" @click="clickShowSecret">Show Secrets</button>
+    <button class="btn btn-primary" :disabled="showSecret" @click="clickShowSecret">Show Secrets</button>
     <progress class="progress progress-primary w-56" :value="showSecretPercentRemaining" max="100" />
+
+    <button class="btn btn-primary justify-end" @click="showAddRow = true" :disabled="showAddRow">+ Add Secret</button>
 
     <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-200 mt-4">
         <table class="table">
@@ -25,6 +27,18 @@
                 </tr>
             </thead>
             <tbody>
+                <tr v-if="showAddRow">
+                    <th>+</th>
+                    <td>
+                        <input v-model="newKey" class="input input-bordered w-full" placeholder="Key" />
+                    </td>
+                    <td>
+                        <input v-model="newValue" class="input input-bordered w-full" placeholder="Value" @keyup.enter="saveNewSecret" />
+                    </td>
+                    <td>
+                        <ConfirmReject @confirm="saveNewSecret" @reject="cancelAddRow" :canConfirm="newKey !== '' && newValue !== ''" />
+                    </td>
+                </tr>
                 <tr v-for="secret in tableSecrets" :key="secret.id">
                     <th>{{ secret.id }}</th>
                     <td>{{ secret.key }}</td>
@@ -44,8 +58,28 @@
 import { ref, computed, onMounted } from "vue";
 import SecretDisplay from "./SecretDisplay.vue";
 import { Trash, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-vue-next";
+import ConfirmReject from "./secrets-table/ConfirmReject.vue";
 import { toast } from "vue3-toastify";
 import { SERVER_URL } from "@/main";
+
+const showAddRow = ref(false);
+const newKey = ref("");
+const newValue = ref("");
+
+function cancelAddRow() {
+    showAddRow.value = false;
+    newKey.value = "";
+    newValue.value = "";
+}
+
+async function saveNewSecret() {
+    if (!newKey.value || !newValue.value) {
+        alert("Key and Value required");
+        return;
+    }
+    await addSecret(newKey.value, newValue.value);
+    cancelAddRow();
+}
 
 const showSecretTimeRemaining = ref(null);
 let showSecretInterval: ReturnType<typeof setInterval>;
@@ -102,6 +136,20 @@ const tableSecrets = computed(() => {
     const filteredSecrets = sortedSecrets.filter((secret) => secret.key && secret.key.toLowerCase().includes(filterText.value.toLowerCase()));
     return filteredSecrets;
 });
+
+async function addSecret(key: string, value: string) {
+    try {
+        await fetch(`${SERVER_URL}/secrets/new`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key, value }),
+        });
+        await fetchSecrets();
+    } catch (error) {
+        console.error("Error adding secret:", error);
+        toast("Error adding secret", { type: "error" });
+    }
+}
 
 async function deleteSecret(id: number) {
     try {

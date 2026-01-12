@@ -7,21 +7,17 @@ import (
 
 const SecretsFile = "secrets.json"
 
-type SecretStore struct {
-	secrets []Secret
-}
-
-func loadSecrets() ([]Secret, error) {
+func loadSecrets() (Secrets, error) {
 	if _, err := os.Stat(SecretsFile); os.IsNotExist(err) {
 		// File Does Not Exist
-		return []Secret{}, nil
+		return Secrets{}, nil
 	}
 
 	data, err := os.ReadFile(SecretsFile)
 	if err != nil {
 		return nil, err
 	}
-	secrets := []Secret{}
+	secrets := Secrets{}
 	err = json.Unmarshal(data, &secrets)
 	if err != nil {
 		return nil, err

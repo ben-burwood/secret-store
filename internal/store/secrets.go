@@ -2,7 +2,6 @@ package store
 
 import (
 	"errors"
-	"math/rand"
 	"time"
 )
 
@@ -15,7 +14,19 @@ type Secret struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func ListSecrets() ([]Secret, error) {
+type Secrets []Secret
+
+func (s Secrets) LargestId() int {
+	maxId := 0
+	for _, secret := range s {
+		if secret.ID > maxId {
+			maxId = secret.ID
+		}
+	}
+	return maxId
+}
+
+func ListSecrets() (Secrets, error) {
 	return loadSecrets()
 }
 
@@ -33,8 +44,14 @@ func GetSecret(key string) (Secret, error) {
 }
 
 func CreateSecret(key string, value string) (Secret, error) {
+	allSecrets, err := ListSecrets()
+	if err != nil {
+		return Secret{}, err
+	}
+	largestSecretId := Secrets(allSecrets).LargestId()
+
 	secret := Secret{
-		ID:        rand.Int(),
+		ID:        largestSecretId + 1,
 		Key:       key,
 		Value:     value,
 		CreatedAt: time.Now(),
