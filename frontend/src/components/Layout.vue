@@ -35,10 +35,8 @@
             <div class="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
                 <!-- Sidebar content here -->
                 <ul class="menu w-full grow gap-2">
-                    <!-- List item -->
                     <li>
-                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
-                            <!-- Home icon -->
+                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage" @click="emitPage(Page.HOME)">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -59,21 +57,42 @@
                     </li>
 
                     <li>
-                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Generate">
+                        <button
+                            :class="[
+                                'is-drawer-close:tooltip is-drawer-close:tooltip-right',
+                                props.selectedPage === Page.GENERATE ? 'bg-primary text-primary-content font-bold' : '',
+                            ]"
+                            data-tip="Generate"
+                            @click="emitPage(Page.GENERATE)"
+                        >
                             <PencilLine :size="16" />
                             <span class="is-drawer-close:hidden">Generate</span>
                         </button>
                     </li>
 
                     <li>
-                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="API Keys">
+                        <button
+                            :class="[
+                                'is-drawer-close:tooltip is-drawer-close:tooltip-right',
+                                props.selectedPage === Page.AUTHENTICATION ? 'bg-primary text-primary-content font-bold' : '',
+                            ]"
+                            data-tip="Authentication"
+                            @click="emitPage(Page.AUTHENTICATION)"
+                        >
                             <KeyRound :size="16" />
-                            <span class="is-drawer-close:hidden">API Keys</span>
+                            <span class="is-drawer-close:hidden">Authentication</span>
                         </button>
                     </li>
 
                     <li>
-                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
+                        <button
+                            :class="[
+                                'is-drawer-close:tooltip is-drawer-close:tooltip-right',
+                                props.selectedPage === Page.SETTINGS ? 'bg-primary text-primary-content font-bold' : '',
+                            ]"
+                            data-tip="Settings"
+                            @click="emitPage(Page.SETTINGS)"
+                        >
                             <!-- Settings icon -->
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +120,21 @@
 </template>
 
 <script setup lang="ts">
+import { defineEmits } from "vue";
 import Footer from "./Footer.vue";
 import Logo from "./Logo.vue";
 import { PencilLine, KeyRound } from "lucide-vue-next";
+import { Page } from "@/types/page";
+
+const props = defineProps<{
+    selectedPage: Page;
+}>();
+
+const emit = defineEmits<{
+    (e: "update:selectedPage", page: Page): void;
+}>();
+
+function emitPage(page: Page) {
+    emit("update:selectedPage", page);
+}
 </script>
