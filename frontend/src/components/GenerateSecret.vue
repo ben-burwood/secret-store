@@ -38,12 +38,6 @@
             </div>
         </div>
     </div>
-
-    <div class="toast" v-if="error">
-        <div class="alert alert-error">
-            <span>{{ error }}</span>
-        </div>
-    </div>
 </template>
 
 <script setup lang="ts">
@@ -51,6 +45,7 @@ import { ref } from "vue";
 import SecretDisplay from "@/components/SecretDisplay.vue";
 import { RefreshCcw, ClipboardPlus } from "lucide-vue-next";
 import { SERVER_URL } from "@/main";
+import { toast } from "vue3-toastify";
 
 const length = ref(32);
 const includeNumbers = ref(true);
@@ -59,7 +54,6 @@ const includeSymbols = ref(true);
 const loading = ref(false);
 
 const secret = ref("test");
-const error = ref("");
 
 async function generateSecret() {
     loading.value = true;
@@ -73,7 +67,7 @@ async function generateSecret() {
         const data = await response.json();
         secret.value = data.secret;
     } catch (e) {
-        error.value = `Error Generating Secret : ${e.message}`;
+        toast(`Error Generating Secret : ${e.message}`);
         console.error(e);
     } finally {
         loading.value = false;
