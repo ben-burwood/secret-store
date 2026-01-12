@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"net/http"
-	"secret-store/internal/auth"
 	"secret-store/internal/secret"
 	"secret-store/internal/store"
 	"strconv"
@@ -33,21 +32,27 @@ func GenerateSecretWeb(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAuthKeyWeb(w http.ResponseWriter, r *http.Request) {
-	// TODO - Change this to return previously generated key or none
-	key, err := auth.GenerateAuthKey()
+	key, err := store.ReadAuthKey()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"key": key,
-	})
+	// If Key is Empty, send as Null
+	var resp struct {
+		Key *string `json:"key"`
+	}
+	if key == "" {
+		resp.Key = nil
+	} else {
+		resp.Key = &key
+	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func GenerateAuthKeyWeb(w http.ResponseWriter, r *http.Request) {
-	key, err := auth.GenerateAuthKey()
+	key, err := store.GenerateAuthKey()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -60,7 +65,11 @@ func GenerateAuthKeyWeb(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListSecretsWeb(w http.ResponseWriter, r *http.Request) {
-	secrets := store.ListSecrets()
+	secrets, err := store.ListSecrets()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string][]store.Secret{
