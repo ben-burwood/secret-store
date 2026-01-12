@@ -1,0 +1,7 @@
+services:
+  secret-store:
+    container_name: secret-store
+    build: .
+    restart: unless-stopped
+    ports:
+      - 8080:8080
