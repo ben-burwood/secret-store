@@ -15,17 +15,16 @@ type Secret struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func ListSecrets() []Secret {
-	return []Secret{
-		// TODO - Implement from Storage
-		{ID: 1, Key: "Secret 1", Value: "Value 1", CreatedAt: time.Now()},
-		{ID: 2, Key: "Secret 2", Value: "Value 2", CreatedAt: time.Now()},
-		{ID: 3, Key: "Secret 3", Value: "Value 3", CreatedAt: time.Now()},
-	}
+func ListSecrets() ([]Secret, error) {
+	return loadSecrets()
 }
 
 func GetSecret(key string) (Secret, error) {
-	for _, secret := range ListSecrets() {
+	secrets, err := ListSecrets()
+	if err != nil {
+		return Secret{}, err
+	}
+	for _, secret := range secrets {
 		if secret.Key == key {
 			return secret, nil
 		}
@@ -34,21 +33,27 @@ func GetSecret(key string) (Secret, error) {
 }
 
 func CreateSecret(key string, value string) (Secret, error) {
-	// TODO - Implement the logic to create a new secret
-	return Secret{
+	secret := Secret{
 		ID:        rand.Int(),
 		Key:       key,
 		Value:     value,
 		CreatedAt: time.Now(),
-	}, nil
+	}
+	writeSecret(secret)
+	return secret, nil
 }
 
 func UpdateSecret(id int, key string, value string) error {
-	// TODO - Implement the logic to update a secret by ID
-	return nil
+	secret, err := GetSecret(key)
+	if err != nil {
+		return err
+	}
+
+	secret.Key = key
+	secret.Value = value
+	return writeSecret(secret)
 }
 
 func DeleteSecret(id int) error {
-	// TODO - Implement the logic to delete a secret by ID
-	return nil
+	return deleteSecret(id)
 }
