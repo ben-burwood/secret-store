@@ -1,9 +1,12 @@
 package store
 
 import (
+	"errors"
 	"math/rand"
 	"time"
 )
+
+var ErrSecretNotFound = errors.New("secret not found")
 
 type Secret struct {
 	ID        int       `json:"id"`
@@ -19,6 +22,15 @@ func ListSecrets() []Secret {
 		{ID: 2, Key: "Secret 2", Value: "Value 2", CreatedAt: time.Now()},
 		{ID: 3, Key: "Secret 3", Value: "Value 3", CreatedAt: time.Now()},
 	}
+}
+
+func GetSecret(key string) (Secret, error) {
+	for _, secret := range ListSecrets() {
+		if secret.Key == key {
+			return secret, nil
+		}
+	}
+	return Secret{}, ErrSecretNotFound
 }
 
 func CreateSecret(key string, value string) (Secret, error) {

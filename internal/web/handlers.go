@@ -9,8 +9,8 @@ import (
 	"strconv"
 )
 
-// GenerateSecretApi returns a Secret String for the given Parameters
-func GenerateSecretApi(w http.ResponseWriter, r *http.Request) {
+// GenerateSecretWeb returns a Secret String for the given Parameters
+func GenerateSecretWeb(w http.ResponseWriter, r *http.Request) {
 	lengthStr := r.URL.Query().Get("length")
 	includeNumbersStr := r.URL.Query().Get("includeNumbers")
 	includeSymbolsStr := r.URL.Query().Get("includeSymbols")
@@ -32,7 +32,7 @@ func GenerateSecretApi(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func GetAuthKeyApi(w http.ResponseWriter, r *http.Request) {
+func GetAuthKeyWeb(w http.ResponseWriter, r *http.Request) {
 	// TODO - Change this to return previously generated key or none
 	key, err := auth.GenerateAuthKey()
 	if err != nil {
@@ -46,7 +46,7 @@ func GetAuthKeyApi(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func GenerateAuthKeyApi(w http.ResponseWriter, r *http.Request) {
+func GenerateAuthKeyWeb(w http.ResponseWriter, r *http.Request) {
 	key, err := auth.GenerateAuthKey()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -59,7 +59,7 @@ func GenerateAuthKeyApi(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func ListSecretsApi(w http.ResponseWriter, r *http.Request) {
+func ListSecretsWeb(w http.ResponseWriter, r *http.Request) {
 	secrets := store.ListSecrets()
 
 	w.Header().Set("Content-Type", "application/json")
@@ -68,7 +68,7 @@ func ListSecretsApi(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func CreateSecretApi(w http.ResponseWriter, r *http.Request) {
+func CreateSecretWeb(w http.ResponseWriter, r *http.Request) {
 	var secret store.Secret
 
 	err := json.NewDecoder(r.Body).Decode(&secret)
@@ -86,7 +86,7 @@ func CreateSecretApi(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func DeleteSecretApi(w http.ResponseWriter, r *http.Request) {
+func DeleteSecretWeb(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil {
@@ -103,7 +103,7 @@ func DeleteSecretApi(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func UpdateSecretApi(w http.ResponseWriter, r *http.Request) {
+func UpdateSecretWeb(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil {
