@@ -38,12 +38,19 @@
             </div>
         </div>
     </div>
+
+    <div class="toast" v-if="error">
+        <div class="alert alert-error">
+            <span>{{ error }}</span>
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import SecretDisplay from "@/components/SecretDisplay.vue";
 import { RefreshCcw, ClipboardPlus } from "lucide-vue-next";
+import { SERVER_URL } from "@/main";
 
 const length = ref(32);
 const includeNumbers = ref(true);
@@ -52,12 +59,24 @@ const includeSymbols = ref(true);
 const loading = ref(false);
 
 const secret = ref("test");
+const error = ref("");
 
 async function generateSecret() {
     loading.value = true;
-    setTimeout(() => {
-        secret.value = "generated-secret";
+    const params = new URLSearchParams({
+        length: length.value.toString(),
+        includeNumbers: includeNumbers.value ? "true" : "false",
+        includeSymbols: includeSymbols.value ? "true" : "false",
+    });
+    try {
+        const response = await fetch(`${SERVER_URL}/secret/generate?${params.toString()}`);
+        const data = await response.json();
+        secret.value = data.secret;
+    } catch (e) {
+        error.value = `Error Generating Secret : ${e.message}`;
+        console.error(e);
+    } finally {
         loading.value = false;
-    }, 1000);
+    }
 }
 </script>

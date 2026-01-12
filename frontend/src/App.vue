@@ -1,10 +1,10 @@
 <template>
     <Layout>
-        <Generator />
+        <Generate />
     </Layout>
 </template>
 
 <script setup>
 import Layout from "./components/Layout.vue";
-import Generator from "./components/Generate/index.vue";
+import Generate from "./components/Generate.vue";
 </script>
