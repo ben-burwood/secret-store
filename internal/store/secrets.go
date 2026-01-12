@@ -26,6 +26,15 @@ func (s Secrets) LargestId() int {
 	return maxId
 }
 
+func (s Secrets) GetByID(id int) (Secret, error) {
+	for _, secret := range s {
+		if secret.ID == id {
+			return secret, nil
+		}
+	}
+	return Secret{}, ErrSecretNotFound
+}
+
 func ListSecrets() (Secrets, error) {
 	return loadSecrets()
 }
@@ -61,14 +70,13 @@ func CreateSecret(key string, value string) (Secret, error) {
 }
 
 func UpdateSecret(id int, key string, value string) error {
-	secret, err := GetSecret(key)
-	if err != nil {
-		return err
+	secret := Secret{
+		ID:        id,
+		Key:       key,
+		Value:     value,
+		CreatedAt: time.Now(),
 	}
-
-	secret.Key = key
-	secret.Value = value
-	return writeSecret(secret)
+	return updateSecret(secret)
 }
 
 func DeleteSecret(id int) error {

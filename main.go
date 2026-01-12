@@ -12,7 +12,7 @@ func main() {
 	webMux.HandleFunc("GET /web/secrets", web.ListSecretsWeb)
 	webMux.HandleFunc("POST /web/secrets/new", web.CreateSecretWeb)
 	webMux.HandleFunc("DELETE /web/secrets/{id}", web.DeleteSecretWeb)
-	webMux.HandleFunc("UPDATE /web/secrets/{id}", web.UpdateSecretWeb)
+	webMux.HandleFunc("PATCH /web/secrets/{id}", web.UpdateSecretWeb)
 	webMux.HandleFunc("GET /web/auth/key", web.GetAuthKeyWeb)
 	webMux.HandleFunc("GET /web/auth/key/generate", web.GenerateAuthKeyWeb)
 	// Serve Static Frontend
