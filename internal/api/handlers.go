@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"secret-store/internal/auth"
 	"secret-store/internal/secret"
 	"secret-store/internal/store"
 	"strconv"
@@ -28,6 +29,33 @@ func GenerateSecretApi(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"secret": secret,
+	})
+}
+
+func GetAuthKeyApi(w http.ResponseWriter, r *http.Request) {
+	// TODO - Change this to return previously generated key or none
+	key, err := auth.GenerateAuthKey()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"key": key,
+	})
+}
+
+func GenerateAuthKeyApi(w http.ResponseWriter, r *http.Request) {
+	key, err := auth.GenerateAuthKey()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"key": key,
 	})
 }
 

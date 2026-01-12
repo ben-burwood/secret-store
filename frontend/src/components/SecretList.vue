@@ -74,7 +74,6 @@ function clickShowSecret() {
     }, 1000);
 }
 
-onMounted(() => fetchSecrets());
 const secrets = ref([]);
 async function fetchSecrets() {
     try {
@@ -85,6 +84,7 @@ async function fetchSecrets() {
         console.error("Error fetching secrets:", error);
     }
 }
+onMounted(fetchSecrets);
 
 const sortColumn = ref("id");
 const sortAscending = ref(true);
