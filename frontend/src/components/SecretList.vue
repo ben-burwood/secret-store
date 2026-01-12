@@ -41,10 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import SecretDisplay from "./SecretDisplay.vue";
 import { Trash, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-vue-next";
 import { toast } from "vue3-toastify";
+import { SERVER_URL } from "@/main";
 
 const showSecretTimeRemaining = ref(null);
 let showSecretInterval: ReturnType<typeof setInterval>;
@@ -73,25 +74,24 @@ function clickShowSecret() {
     }, 1000);
 }
 
-const secrets = [
-    {
-        id: 1,
-        key: "Secret 1",
-        value: "This is a secret value",
-    },
-    {
-        id: 2,
-        key: "Secret 2",
-        value: "This is another secret value",
-    },
-];
+onMounted(() => fetchSecrets());
+const secrets = ref([]);
+async function fetchSecrets() {
+    try {
+        const response = await fetch(`${SERVER_URL}/secrets`);
+        const data = await response.json();
+        secrets.value = data.secrets;
+    } catch (error) {
+        console.error("Error fetching secrets:", error);
+    }
+}
 
 const sortColumn = ref("id");
 const sortAscending = ref(true);
 const filterText = ref("");
 
 const tableSecrets = computed(() => {
-    const sortedSecrets = secrets.sort((a, b) => {
+    const sortedSecrets = secrets.value.sort((a, b) => {
         if (sortColumn.value === "id") {
             return sortAscending.value ? a.id - b.id : b.id - a.id;
         } else if (sortColumn.value === "key") {
@@ -103,7 +103,13 @@ const tableSecrets = computed(() => {
     return filteredSecrets;
 });
 
-function deleteSecret(id: number) {
-    toast("Secret Deleted successfully", { type: "error" });
+async function deleteSecret(id: number) {
+    try {
+        await fetch(`${SERVER_URL}/secrets/${id}`, { method: "DELETE" });
+        await fetchSecrets();
+    } catch (error) {
+        console.error("Error deleting secret:", error);
+        toast("Error deleting secret", { type: "error" });
+    }
 }
 </script>

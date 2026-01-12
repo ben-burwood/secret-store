@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"secret-store/internal/secret"
+	"secret-store/internal/store"
 	"strconv"
 )
 
@@ -28,4 +29,73 @@ func GenerateSecretApi(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"secret": secret,
 	})
+}
+
+func ListSecretsApi(w http.ResponseWriter, r *http.Request) {
+	secrets := store.ListSecrets()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string][]store.Secret{
+		"secrets": secrets,
+	})
+}
+
+func CreateSecretApi(w http.ResponseWriter, r *http.Request) {
+	var secret store.Secret
+
+	err := json.NewDecoder(r.Body).Decode(&secret)
+	if err != nil {
+		http.Error(w, "Invalid secret", http.StatusBadRequest)
+		return
+	}
+
+	_, err = store.CreateSecret(secret.Key, secret.Value)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func DeleteSecretApi(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	err = store.DeleteSecret(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func UpdateSecretApi(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	var secret store.Secret
+
+	err = json.NewDecoder(r.Body).Decode(&secret)
+	if err != nil {
+		http.Error(w, "Invalid secret", http.StatusBadRequest)
+		return
+	}
+
+	err = store.UpdateSecret(id, secret.Key, secret.Value)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
