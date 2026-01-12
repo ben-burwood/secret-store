@@ -1,84 +1,117 @@
 package store
 
 import (
-	"errors"
+	"encoding/json"
+	"os"
+	"secret-store/internal/secret"
 	"time"
 )
 
-var ErrSecretNotFound = errors.New("secret not found")
+const SecretsFile = storeDirectory + "/secrets.json"
 
-type Secret struct {
-	ID        int       `json:"id"`
-	Key       string    `json:"key"`
-	Value     string    `json:"value"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-type Secrets []Secret
-
-func (s Secrets) LargestId() int {
-	maxId := 0
-	for _, secret := range s {
-		if secret.ID > maxId {
-			maxId = secret.ID
-		}
+func loadSecrets() (secret.Secrets, error) {
+	if _, err := os.Stat(SecretsFile); os.IsNotExist(err) {
+		// File Does Not Exist
+		return secret.Secrets{}, nil
 	}
-	return maxId
-}
 
-func (s Secrets) GetByID(id int) (Secret, error) {
-	for _, secret := range s {
-		if secret.ID == id {
-			return secret, nil
-		}
+	data, err := os.ReadFile(SecretsFile)
+	if err != nil {
+		return nil, err
 	}
-	return Secret{}, ErrSecretNotFound
+	secrets := secret.Secrets{}
+	err = json.Unmarshal(data, &secrets)
+	if err != nil {
+		return nil, err
+	}
+	return secrets, nil
 }
 
-func ListSecrets() (Secrets, error) {
+func ListSecrets() (secret.Secrets, error) {
 	return loadSecrets()
 }
 
-func GetSecret(key string) (Secret, error) {
+func GetSecret(key string) (secret.Secret, error) {
 	secrets, err := ListSecrets()
 	if err != nil {
-		return Secret{}, err
+		return secret.Secret{}, err
 	}
 	for _, secret := range secrets {
 		if secret.Key == key {
 			return secret, nil
 		}
 	}
-	return Secret{}, ErrSecretNotFound
+	return secret.Secret{}, secret.ErrSecretNotFound
 }
 
-func CreateSecret(key string, value string) (Secret, error) {
+func CreateSecret(key string, value string) (secret.Secret, error) {
 	allSecrets, err := ListSecrets()
 	if err != nil {
-		return Secret{}, err
+		return secret.Secret{}, err
 	}
-	largestSecretId := Secrets(allSecrets).LargestId()
+	largestSecretId := secret.Secrets(allSecrets).LargestId()
 
-	secret := Secret{
+	newSecret := secret.Secret{
 		ID:        largestSecretId + 1,
 		Key:       key,
 		Value:     value,
 		CreatedAt: time.Now(),
 	}
-	writeSecret(secret)
-	return secret, nil
+	secrets, err := loadSecrets()
+	if err != nil {
+		return secret.Secret{}, err
+	}
+	secrets = append(secrets, newSecret)
+	data, err := json.Marshal(secrets)
+	if err != nil {
+		return secret.Secret{}, err
+	}
+	err = os.WriteFile(SecretsFile, data, 0644)
+	if err != nil {
+		return secret.Secret{}, err
+	}
+	return newSecret, nil
 }
 
 func UpdateSecret(id int, key string, value string) error {
-	secret := Secret{
+	updateSecret := secret.Secret{
 		ID:        id,
 		Key:       key,
 		Value:     value,
 		CreatedAt: time.Now(),
 	}
-	return updateSecret(secret)
+
+	secrets, err := loadSecrets()
+	if err != nil {
+		return err
+	}
+	for i, s := range secrets {
+		if s.ID == updateSecret.ID {
+			secrets[i] = updateSecret
+			break
+		}
+	}
+	data, err := json.Marshal(secrets)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(SecretsFile, data, 0644)
 }
 
 func DeleteSecret(id int) error {
-	return deleteSecret(id)
+	secrets, err := loadSecrets()
+	if err != nil {
+		return err
+	}
+	for i, s := range secrets {
+		if s.ID == id {
+			secrets = append(secrets[:i], secrets[i+1:]...)
+			break
+		}
+	}
+	data, err := json.Marshal(secrets)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(SecretsFile, data, 0644)
 }

@@ -3,10 +3,13 @@ package main
 import (
 	"net/http"
 	"secret-store/internal/api"
+	"secret-store/internal/store"
 	"secret-store/internal/web"
 )
 
 func main() {
+	store.InitialiseStore()
+
 	webMux := http.NewServeMux()
 	webMux.HandleFunc("GET /web/secret/generate", web.GenerateSecretWeb)
 	webMux.HandleFunc("GET /web/secrets", web.ListSecretsWeb)

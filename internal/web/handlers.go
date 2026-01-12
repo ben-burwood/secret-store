@@ -72,13 +72,13 @@ func ListSecretsWeb(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string][]store.Secret{
+	json.NewEncoder(w).Encode(map[string][]secret.Secret{
 		"secrets": secrets,
 	})
 }
 
 func CreateSecretWeb(w http.ResponseWriter, r *http.Request) {
-	var secret store.Secret
+	var secret secret.Secret
 
 	err := json.NewDecoder(r.Body).Decode(&secret)
 	if err != nil {
@@ -120,7 +120,7 @@ func UpdateSecretWeb(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var secret store.Secret
+	var secret secret.Secret
 
 	err = json.NewDecoder(r.Body).Decode(&secret)
 	if err != nil {

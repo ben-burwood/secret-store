@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const AuthKeyFile = ".authkey"
+const AuthKeyFile = storeDirectory + "/secrets.json.authkey"
 
 func writeAuthKey(authKey string) error {
 	return os.WriteFile(AuthKeyFile, []byte(authKey), 0644)
