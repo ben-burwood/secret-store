@@ -136,3 +136,22 @@ func UpdateSecretWeb(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func ImportSecretsWeb(w http.ResponseWriter, r *http.Request) {
+	secrets := []secret.Secret{}
+
+	err := json.NewDecoder(r.Body).Decode(&secrets)
+	if err != nil {
+		http.Error(w, "Invalid secrets", http.StatusBadRequest)
+		return
+	}
+
+	for _, secret := range secrets {
+		_, err = store.CreateSecret(secret.Key, secret.Value)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNoContent)
+}

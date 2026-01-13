@@ -12,7 +12,7 @@
             <label class="label mt-4">Value</label>
             <input type="password" class="input" placeholder="Value" v-model="newValue" @keyup.enter="addSecret" />
 
-            <button class="btn btn-primary mt-4" @click="addSecret">Add</button>
+            <button class="btn btn-primary mt-4" @click="addSecret" :disabled="!newKey || !newValue">Add</button>
         </fieldset>
     </div>
 </template>

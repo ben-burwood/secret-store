@@ -115,3 +115,7 @@ func DeleteSecret(id int) error {
 	}
 	return os.WriteFile(SecretsFile, data, 0644)
 }
+
+func WipeSecrets() error {
+	return os.WriteFile(SecretsFile, []byte("[]"), 0644)
+}

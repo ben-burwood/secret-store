@@ -14,6 +14,7 @@ func main() {
 	webMux.HandleFunc("GET /web/secret/generate", web.GenerateSecretWeb)
 	webMux.HandleFunc("GET /web/secrets", web.ListSecretsWeb)
 	webMux.HandleFunc("POST /web/secrets/new", web.CreateSecretWeb)
+	webMux.HandleFunc("POST /web/secrets/import", web.ImportSecretsWeb)
 	webMux.HandleFunc("DELETE /web/secrets/{id}", web.DeleteSecretWeb)
 	webMux.HandleFunc("PATCH /web/secrets/{id}", web.UpdateSecretWeb)
 	webMux.HandleFunc("GET /web/auth/key", web.GetAuthKeyWeb)
