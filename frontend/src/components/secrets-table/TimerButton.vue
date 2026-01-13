@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, defineEmits, defineProps, watch, onUnmounted } from "vue";
+import { computed, ref, watch, onUnmounted } from "vue";
 
 const props = defineProps<{
     timeLimit?: number;
@@ -17,12 +17,7 @@ const emit = defineEmits(["enabled", "disabled"]);
 
 let interval: ReturnType<typeof setInterval>;
 const timeRemaining = ref(0);
-const percentRemaining = computed(() => {
-    if (timeRemaining.value === null) {
-        return 0;
-    }
-    return Math.floor((timeRemaining.value / timeLimit.value) * 100);
-});
+const percentRemaining = computed(() => Math.floor((timeRemaining.value / timeLimit.value) * 100));
 const enabled = computed(() => percentRemaining.value > 0);
 const buttonBg = computed(() => {
     if (!enabled.value) return {};
@@ -48,13 +43,11 @@ function onClick() {
     if (interval) clearInterval(interval);
     timeRemaining.value = timeLimit.value;
     interval = setInterval(() => {
-        if (timeRemaining.value !== null) {
-            timeRemaining.value -= 1;
-            if (timeRemaining.value <= 0) {
-                timeRemaining.value = 0;
-                clearInterval(interval!);
-                interval = null;
-            }
+        timeRemaining.value -= 1;
+        if (timeRemaining.value <= 0) {
+            timeRemaining.value = 0;
+            clearInterval(interval!);
+            interval = null;
         }
     }, 1000);
 }

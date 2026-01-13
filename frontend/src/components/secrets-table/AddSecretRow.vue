@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits } from "vue";
+import { ref } from "vue";
 import ConfirmReject from "@/components/secrets-table/ConfirmReject.vue";
 import { toast } from "vue3-toastify";
 import { SERVER_URL } from "@/main";
@@ -34,7 +34,7 @@ async function addSecret() {
         await fetch(`${SERVER_URL}/secrets/new`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ key, value }),
+            body: JSON.stringify({ key: newKey.value, value: newValue.value }),
         });
         emit("refresh");
     } catch (error) {

@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from "vue";
+import { ref } from "vue";
 import { Trash, Pencil } from "lucide-vue-next";
 import SecretDisplay from "@/components/SecretDisplay.vue";
 import { toast } from "vue3-toastify";

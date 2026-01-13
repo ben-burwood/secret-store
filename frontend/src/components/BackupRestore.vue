@@ -47,6 +47,11 @@ function onFileChange(event: Event) {
 }
 
 async function restore() {
+    if (!selectedFile.value) {
+        toast("No file selected", { type: "error" });
+        return;
+    }
+
     let secrets;
     try {
         const json = await selectedFile.value.text();

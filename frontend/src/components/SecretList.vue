@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, defineProps } from "vue";
+import { ref, computed, onMounted } from "vue";
 import SecretDisplay from "./SecretDisplay.vue";
 import { Trash, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-vue-next";
 import ConfirmReject from "./secrets-table/ConfirmReject.vue";

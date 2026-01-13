@@ -120,7 +120,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits } from "vue";
 import Footer from "./Footer.vue";
 import Logo from "./Logo.vue";
 import { PencilLine, KeyRound } from "lucide-vue-next";

@@ -5,11 +5,11 @@
 </template>
 
 <script setup lang="ts">
-import Layout from "./components/Layout.vue";
-import Generate from "./components/pages/Generate.vue";
-import Home from "./components/pages/Home.vue";
-import Authentication from "./components/pages/Authentication.vue";
-import Settings from "./components/pages/Settings.vue";
+import Layout from "@/components/Layout.vue";
+import Generate from "@/components/pages/Generate.vue";
+import Home from "@/components/pages/Home.vue";
+import Authentication from "@/components/pages/Authentication.vue";
+import Settings from "@/components/pages/Settings.vue";
 import { ref, computed } from "vue";
 import { Page } from "@/types/page";
 
@@ -25,7 +25,7 @@ const currentComponent = computed(() => {
         case Page.SETTINGS:
             return Settings;
         default:
-            return SecretList;
+            return Home;
     }
 });
 </script>
