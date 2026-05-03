@@ -16,7 +16,7 @@
                 </tr>
             </thead>
             <tbody>
-                <AddApiKeyRow v-if="showAddRow" @refresh="refresh" @cancel="showAddRow = false" />
+                <AddApiKeyRow v-if="showAddRow" :secrets="secrets" @refresh="refresh" @cancel="showAddRow = false" />
                 <ApiKeyRow v-for="apiKey in apiKeys" :key="apiKey.id" :apiKey="apiKey" :secrets="secrets" @refresh="refresh" />
                 <tr v-if="!loading && apiKeys.length === 0 && !showAddRow">
                     <td colspan="5" class="text-center opacity-60">No API keys yet</td>

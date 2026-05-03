@@ -43,8 +43,20 @@ def register_api_key_routes(app: Robyn):
         if not name:
             return json_response(400, {"error": "name is required"})
 
+        raw_ids = body.get("secret_ids", [])
+        if not isinstance(raw_ids, list) or not all(isinstance(x, int) for x in raw_ids):
+            return json_response(400, {"error": "secret_ids must be a list of integers"})
+        secret_ids = list(set(raw_ids))
+
         with get_session() as session:
+            if secret_ids:
+                matched = session.scalars(select(Secret).where(Secret.id.in_(secret_ids))).all()
+                if len(matched) != len(secret_ids):
+                    return json_response(400, {"error": "One or more secret_ids do not exist"})
+            else:
+                matched = []
             row = ApiKey(name=name, key=_new_key(), created_at=datetime.now())
+            row.secrets = list(matched)
             session.add(row)
             try:
                 session.commit()
