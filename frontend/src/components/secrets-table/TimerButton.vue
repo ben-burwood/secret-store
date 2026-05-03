@@ -15,7 +15,7 @@ const timeLimit = computed(() => props.timeLimit ?? 10);
 
 const emit = defineEmits(["enabled", "disabled"]);
 
-let interval: ReturnType<typeof setInterval>;
+let interval: ReturnType<typeof setInterval> | null = null;
 const timeRemaining = ref(0);
 const percentRemaining = computed(() => Math.floor((timeRemaining.value / timeLimit.value) * 100));
 const enabled = computed(() => percentRemaining.value > 0);

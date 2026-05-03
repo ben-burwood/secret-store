@@ -18,7 +18,7 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFile = ref<File | null>(null);
 function onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
-    selectedFile.value = input.files && input.files.length > 0 ? input.files[0] : null;
+    selectedFile.value = input.files?.[0] ?? null;
 }
 
 function parseEnv(text: string) {
@@ -35,9 +35,8 @@ function parseEnv(text: string) {
     return secrets;
 }
 
-function parseJson(json) {
-    // If it's an object, convert to array
-    if (!Array.isArray(json) && typeof json === "object") {
+function parseJson(json: unknown) {
+    if (!Array.isArray(json) && typeof json === "object" && json !== null) {
         return Object.entries(json).map(([key, value]) => ({ key, value }));
     }
     return json;
@@ -73,7 +72,8 @@ async function importFromFile() {
         });
         if (!response.ok) throw new Error();
     } catch (err) {
-        toast("Import failed: " + err.message, { type: "error" });
+        const message = err instanceof Error ? err.message : String(err);
+        toast("Import failed: " + message, { type: "error" });
     }
 }
 </script>

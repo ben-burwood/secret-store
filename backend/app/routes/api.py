@@ -30,9 +30,7 @@ def register_api_routes(app: Robyn):
             if secret is None:
                 return text_response(404, "Secret not found")
 
-            api_key = session.scalars(
-                select(ApiKey).options(selectinload(ApiKey.secrets)).where(ApiKey.key == token)
-            ).first()
+            api_key = session.scalars(select(ApiKey).options(selectinload(ApiKey.secrets)).where(ApiKey.key == token)).first()
             if api_key is None:
                 return text_response(401, "Unauthorized: missing or invalid token")
 

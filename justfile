@@ -5,4 +5,4 @@ default:
 
 format:
     Set-Location backend; ruff format
-    Set-Location frontend; vp check
+    Set-Location frontend; vp check --fix

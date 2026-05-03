@@ -17,7 +17,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import SecretList from "@/components/SecretList.vue";
 import { backendFetch } from "@/main";
