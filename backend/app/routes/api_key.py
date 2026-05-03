@@ -53,14 +53,9 @@ def register_api_key_routes(app: Robyn):
             return json_response(201, _serialize(row))
 
     @app.post("/web/api/keys/:id/regenerate", auth_required=True)
-    async def regenerate_api_key(request: Request) -> Response:
-        try:
-            api_key_id = int(request.path_params["id"])
-        except (KeyError, ValueError):
-            return json_response(400, {"error": "Invalid ID"})
-
+    async def regenerate_api_key(request: Request, id: int) -> Response:
         with get_session() as session:
-            row = session.get(ApiKey, api_key_id)
+            row = session.get(ApiKey, id)
             if row is None:
                 return json_response(404, {"error": "API key not found"})
             row.key = _new_key()
@@ -68,12 +63,7 @@ def register_api_key_routes(app: Robyn):
             return json_response(200, _serialize(row))
 
     @app.put("/web/api/keys/:id/scopes", auth_required=True)
-    async def update_api_key_scopes(request: Request) -> Response:
-        try:
-            api_key_id = int(request.path_params["id"])
-        except (KeyError, ValueError):
-            return json_response(400, {"error": "Invalid ID"})
-
+    async def update_api_key_scopes(request: Request, id: int) -> Response:
         body, err = parse_json_body(request)
         if err is not None:
             return err
@@ -84,7 +74,7 @@ def register_api_key_routes(app: Robyn):
         secret_ids = list(set(raw_ids))
 
         with get_session() as session:
-            row = session.get(ApiKey, api_key_id)
+            row = session.get(ApiKey, id)
             if row is None:
                 return json_response(404, {"error": "API key not found"})
             if secret_ids:
@@ -98,13 +88,8 @@ def register_api_key_routes(app: Robyn):
             return json_response(200, _serialize(row))
 
     @app.delete("/web/api/keys/:id", auth_required=True)
-    async def delete_api_key(request: Request) -> Response:
-        try:
-            api_key_id = int(request.path_params["id"])
-        except (KeyError, ValueError):
-            return json_response(400, {"error": "Invalid ID"})
-
+    async def delete_api_key(request: Request, id: int) -> Response:
         with get_session() as session:
-            session.execute(delete(ApiKey).where(ApiKey.id == api_key_id))
+            session.execute(delete(ApiKey).where(ApiKey.id == id))
             session.commit()
         return empty(204)

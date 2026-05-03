@@ -4,6 +4,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.encryption import EncryptedString
 
 api_key_secrets = Table(
     "api_key_secrets",
@@ -18,7 +19,7 @@ class Secret(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     key: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    value: Mapped[str] = mapped_column(String, nullable=False)
+    value: Mapped[str] = mapped_column(EncryptedString, nullable=False)
     tag: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 

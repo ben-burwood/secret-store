@@ -99,18 +99,13 @@ def register_secrets_routes(app: Robyn):
         return empty(201)
 
     @app.patch("/web/secrets/:id", auth_required=True)
-    async def update_secret(request: Request) -> Response:
-        try:
-            secret_id = int(request.path_params["id"])
-        except (KeyError, ValueError):
-            return json_response(400, {"error": "Invalid ID"})
-
+    async def update_secret(request: Request, id: int) -> Response:
         body, err = parse_json_body(request)
         if err is not None:
             return err
 
         with get_session() as session:
-            secret = session.get(Secret, secret_id)
+            secret = session.get(Secret, id)
             if secret is None:
                 return json_response(404, {"error": "Secret not found"})
             if "key" in body:
@@ -132,14 +127,9 @@ def register_secrets_routes(app: Robyn):
         return empty(204)
 
     @app.delete("/web/secrets/:id", auth_required=True)
-    async def delete_secret(request: Request) -> Response:
-        try:
-            secret_id = int(request.path_params["id"])
-        except (KeyError, ValueError):
-            return json_response(400, {"error": "Invalid ID"})
-
+    async def delete_secret(request: Request, id: int) -> Response:
         with get_session() as session:
-            session.execute(delete(Secret).where(Secret.id == secret_id))
+            session.execute(delete(Secret).where(Secret.id == id))
             session.commit()
         return empty(204)
 
