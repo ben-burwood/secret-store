@@ -74,13 +74,13 @@
                         <button
                             :class="[
                                 'is-drawer-close:tooltip is-drawer-close:tooltip-right',
-                                props.selectedPage === Page.AUTHENTICATION ? 'bg-primary text-primary-content font-bold' : '',
+                                props.selectedPage === Page.API_KEYS ? 'bg-primary text-primary-content font-bold' : '',
                             ]"
-                            data-tip="Authentication"
-                            @click="emitPage(Page.AUTHENTICATION)"
+                            data-tip="API Keys"
+                            @click="emitPage(Page.API_KEYS)"
                         >
                             <KeyRound :size="16" />
-                            <span class="is-drawer-close:hidden">Authentication</span>
+                            <span class="is-drawer-close:hidden">API Keys</span>
                         </button>
                     </li>
 

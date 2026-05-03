@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import ConfirmReject from "@/components/secrets-table/ConfirmReject.vue";
+import ConfirmReject from "@/components/ConfirmReject.vue";
 import { toast } from "vue3-toastify";
 import { backendFetch } from "@/main";
 

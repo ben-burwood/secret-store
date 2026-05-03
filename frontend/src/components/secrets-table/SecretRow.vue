@@ -51,7 +51,7 @@ import { Trash, Pencil } from "lucide-vue-next";
 import SecretDisplay from "@/components/SecretDisplay.vue";
 import { toast } from "vue3-toastify";
 import { backendFetch } from "@/main";
-import ConfirmReject from "@/components/secrets-table/ConfirmReject.vue";
+import ConfirmReject from "@/components/ConfirmReject.vue";
 
 const props = defineProps<{
     secret: {

@@ -1,6 +1,6 @@
 export enum Page {
     HOME = "home",
     GENERATE = "generate",
-    AUTHENTICATION = "authentication",
+    API_KEYS = "api_keys",
     SETTINGS = "settings",
 }

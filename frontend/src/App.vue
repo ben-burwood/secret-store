@@ -12,7 +12,7 @@
 import Layout from "@/components/Layout.vue";
 import Generate from "@/components/pages/Generate.vue";
 import Home from "@/components/pages/Home.vue";
-import Authentication from "@/components/pages/Authentication.vue";
+import ApiKeys from "@/components/pages/ApiKeys.vue";
 import Settings from "@/components/pages/Settings.vue";
 import Login from "@/components/pages/Login.vue";
 import { ref, computed, onMounted } from "vue";
@@ -26,8 +26,8 @@ const currentComponent = computed(() => {
             return Home;
         case Page.GENERATE:
             return Generate;
-        case Page.AUTHENTICATION:
-            return Authentication;
+        case Page.API_KEYS:
+            return ApiKeys;
         case Page.SETTINGS:
             return Settings;
         default:

@@ -3,6 +3,7 @@ from datetime import datetime
 
 from robyn import Request, Response, Robyn
 from sqlalchemy import delete, select
+from sqlalchemy.exc import IntegrityError
 
 from app.database import get_session
 from app.models import Secret
@@ -83,9 +84,6 @@ def register_secrets_routes(app: Robyn):
             return json_response(400, {"error": "key is required"})
 
         with get_session() as session:
-            existing = session.scalars(select(Secret).where(Secret.key == key)).first()
-            if existing is not None:
-                return json_response(409, {"error": f"Key '{key}' already exists"})
             session.add(
                 Secret(
                     key=key,
@@ -94,7 +92,10 @@ def register_secrets_routes(app: Robyn):
                     created_at=datetime.now(),
                 )
             )
-            session.commit()
+            try:
+                session.commit()
+            except IntegrityError:
+                return json_response(409, {"error": f"Key '{key}' already exists"})
         return empty(201)
 
     @app.patch("/web/secrets/:id", auth_required=True)
@@ -117,10 +118,11 @@ def register_secrets_routes(app: Robyn):
                 if not new_key:
                     return json_response(400, {"error": "key is required"})
                 if new_key != secret.key:
-                    clash = session.scalars(select(Secret).where(Secret.key == new_key)).first()
-                    if clash is not None:
+                    secret.key = new_key
+                    try:
+                        session.flush()
+                    except IntegrityError:
                         return json_response(409, {"error": f"Key '{new_key}' already exists"})
-                secret.key = new_key
             if "value" in body:
                 secret.value = body["value"]
             if "tag" in body:
@@ -147,7 +149,7 @@ def register_secrets_routes(app: Robyn):
         if err is not None:
             return err
 
-        now = datetime.utcnow()
+        now = datetime.now()
         new_rows = _dedup_items(items, default_created_at=now, preserve_created_at=False)
 
         with get_session() as session:
