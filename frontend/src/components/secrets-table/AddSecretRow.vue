@@ -1,11 +1,13 @@
 <template>
     <tr>
-        <th>+</th>
         <td>
             <input v-model="newKey" class="input input-bordered w-full" placeholder="Key" />
         </td>
         <td>
             <input v-model="newValue" class="input input-bordered w-full" placeholder="Value" @keyup.enter="addSecret" />
+        </td>
+        <td>
+            <input v-model="newTag" list="existing-tags" class="input input-bordered w-full" placeholder="Tag (optional)" @keyup.enter="addSecret" />
         </td>
         <td>
             <ConfirmReject @confirm="addSecret" @reject="cancelAddRow" :canConfirm="newKey !== '' && newValue !== ''" />
@@ -23,9 +25,11 @@ const emit = defineEmits(["refresh", "cancel"]);
 
 const newKey = ref("");
 const newValue = ref("");
+const newTag = ref("");
 const cancelAddRow = () => {
     newKey.value = "";
     newValue.value = "";
+    newTag.value = "";
     emit("cancel");
 };
 
@@ -34,7 +38,7 @@ async function addSecret() {
         const res = await backendFetch(`/secrets/new`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ key: newKey.value, value: newValue.value }),
+            body: JSON.stringify({ key: newKey.value, value: newValue.value, tag: newTag.value.trim() || null }),
         });
         if (!res.ok) {
             const body = await res.json().catch(() => null);

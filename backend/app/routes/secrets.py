@@ -14,8 +14,16 @@ def _serialize(secret: Secret) -> dict:
         "id": secret.id,
         "key": secret.key,
         "value": secret.value,
+        "tag": secret.tag,
         "created_at": secret.created_at.isoformat() if secret.created_at else None,
     }
+
+
+def _normalize_tag(value) -> str | None:
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip().lower().replace(" ", "_")
+    return normalized or None
 
 
 def _parse_iso(value) -> datetime | None:
@@ -34,7 +42,12 @@ def _dedup_items(items: list, *, default_created_at: datetime, preserve_created_
         if not key:
             continue
         created_at = (preserve_created_at and _parse_iso(item.get("created_at"))) or default_created_at
-        by_key[key] = Secret(key=key, value=item.get("value") or "", created_at=created_at)
+        by_key[key] = Secret(
+            key=key,
+            value=item.get("value") or "",
+            tag=_normalize_tag(item.get("tag")),
+            created_at=created_at,
+        )
     return list(by_key.values())
 
 
@@ -73,7 +86,14 @@ def register_secrets_routes(app: Robyn):
             existing = session.scalars(select(Secret).where(Secret.key == key)).first()
             if existing is not None:
                 return json_response(409, {"error": f"Key '{key}' already exists"})
-            session.add(Secret(key=key, value=body.get("value") or "", created_at=datetime.now()))
+            session.add(
+                Secret(
+                    key=key,
+                    value=body.get("value") or "",
+                    tag=_normalize_tag(body.get("tag")),
+                    created_at=datetime.now(),
+                )
+            )
             session.commit()
         return empty(201)
 
@@ -103,6 +123,8 @@ def register_secrets_routes(app: Robyn):
                 secret.key = new_key
             if "value" in body:
                 secret.value = body["value"]
+            if "tag" in body:
+                secret.tag = _normalize_tag(body.get("tag"))
             secret.created_at = datetime.now()
             session.commit()
         return empty(204)
@@ -136,6 +158,7 @@ def register_secrets_routes(app: Robyn):
                     session.add(row)
                 else:
                     current.value = row.value
+                    current.tag = row.tag
                     current.created_at = now
             session.commit()
         return empty(204)

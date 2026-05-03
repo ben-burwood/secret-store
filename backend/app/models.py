@@ -19,6 +19,7 @@ class Secret(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     key: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     value: Mapped[str] = mapped_column(String, nullable=False)
+    tag: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 
     api_keys: Mapped[list["ApiKey"]] = relationship(

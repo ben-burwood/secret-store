@@ -1,6 +1,5 @@
 <template>
     <tr :class="{ 'bg-success/10': isEditing }">
-        <th>{{ secret.id }}</th>
         <td>
             <template v-if="isEditing">
                 <input v-model="editKey" class="input input-bordered w-full" />
@@ -15,6 +14,21 @@
             </template>
             <template v-else>
                 <SecretDisplay :secret="secret.value" :showSecret="showSecret" />
+            </template>
+        </td>
+        <td>
+            <template v-if="isEditing">
+                <input
+                    v-model="editTag"
+                    list="existing-tags"
+                    class="input input-bordered w-full"
+                    placeholder="Tag (optional)"
+                    @keyup.enter="updateSecret"
+                />
+            </template>
+            <template v-else>
+                <span v-if="secret.tag" class="badge badge-outline">{{ secret.tag.toUpperCase() }}</span>
+                <span v-else class="opacity-50">—</span>
             </template>
         </td>
         <td>
@@ -44,6 +58,7 @@ const props = defineProps<{
         id: number | string;
         key: string;
         value: string;
+        tag?: string | null;
     };
     showSecret: boolean;
 }>();
@@ -53,13 +68,14 @@ const emit = defineEmits(["refresh"]);
 const isEditing = ref(false);
 const editKey = ref(props.secret.key);
 const editValue = ref(props.secret.value);
+const editTag = ref(props.secret.tag ?? "");
 
 async function updateSecret() {
     try {
         const res = await backendFetch(`/secrets/${props.secret.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ key: editKey.value, value: editValue.value }),
+            body: JSON.stringify({ key: editKey.value, value: editValue.value, tag: editTag.value.trim() || null }),
         });
         if (!res.ok) {
             const body = await res.json().catch(() => null);
