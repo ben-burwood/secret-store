@@ -9,8 +9,8 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-  - package-ecosystem: gomod
-    directory: "/"
+  - package-ecosystem: uv
+    directory: "/backend"
     schedule:
       interval: "monthly"
   - package-ecosystem: npm
