@@ -27,15 +27,15 @@ def _parse_iso(value) -> datetime | None:
         return None
 
 
-def _build_secrets(items: list, *, default_created_at: datetime, preserve_created_at: bool) -> list[Secret]:
-    out: list[Secret] = []
+def _dedup_items(items: list, *, default_created_at: datetime, preserve_created_at: bool) -> list[Secret]:
+    by_key: dict[str, Secret] = {}
     for item in items:
         key = (item.get("key") or "").strip()
         if not key:
             continue
         created_at = (preserve_created_at and _parse_iso(item.get("created_at"))) or default_created_at
-        out.append(Secret(key=key, value=item.get("value") or "", created_at=created_at))
-    return out
+        by_key[key] = Secret(key=key, value=item.get("value") or "", created_at=created_at)
+    return list(by_key.values())
 
 
 def _read_secrets_form(request: Request) -> tuple[list | None, Response | None]:
@@ -70,7 +70,10 @@ def register_secrets_routes(app: Robyn):
             return json_response(400, {"error": "key is required"})
 
         with get_session() as session:
-            session.add(Secret(key=key, value=body.get("value") or "", created_at=datetime.utcnow()))
+            existing = session.scalars(select(Secret).where(Secret.key == key)).first()
+            if existing is not None:
+                return json_response(409, {"error": f"Key '{key}' already exists"})
+            session.add(Secret(key=key, value=body.get("value") or "", created_at=datetime.now()))
             session.commit()
         return empty(201)
 
@@ -90,10 +93,17 @@ def register_secrets_routes(app: Robyn):
             if secret is None:
                 return json_response(404, {"error": "Secret not found"})
             if "key" in body:
-                secret.key = body["key"]
+                new_key = (body["key"] or "").strip()
+                if not new_key:
+                    return json_response(400, {"error": "key is required"})
+                if new_key != secret.key:
+                    clash = session.scalars(select(Secret).where(Secret.key == new_key)).first()
+                    if clash is not None:
+                        return json_response(409, {"error": f"Key '{new_key}' already exists"})
+                secret.key = new_key
             if "value" in body:
                 secret.value = body["value"]
-            secret.created_at = datetime.utcnow()
+            secret.created_at = datetime.now()
             session.commit()
         return empty(204)
 
@@ -115,8 +125,18 @@ def register_secrets_routes(app: Robyn):
         if err is not None:
             return err
 
+        now = datetime.utcnow()
+        new_rows = _dedup_items(items, default_created_at=now, preserve_created_at=False)
+
         with get_session() as session:
-            session.add_all(_build_secrets(items, default_created_at=datetime.utcnow(), preserve_created_at=False))
+            existing = {s.key: s for s in session.scalars(select(Secret).where(Secret.key.in_([r.key for r in new_rows]))).all()}
+            for row in new_rows:
+                current = existing.get(row.key)
+                if current is None:
+                    session.add(row)
+                else:
+                    current.value = row.value
+                    current.created_at = now
             session.commit()
         return empty(204)
 
@@ -128,6 +148,6 @@ def register_secrets_routes(app: Robyn):
 
         with get_session() as session:
             session.execute(delete(Secret))
-            session.add_all(_build_secrets(items, default_created_at=datetime.utcnow(), preserve_created_at=True))
+            session.add_all(_dedup_items(items, default_created_at=datetime.now(), preserve_created_at=True))
             session.commit()
         return empty(204)

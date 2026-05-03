@@ -17,7 +17,7 @@ class Secret(Base):
     __tablename__ = "secrets"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    key: Mapped[str] = mapped_column(String, nullable=False)
+    key: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     value: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 

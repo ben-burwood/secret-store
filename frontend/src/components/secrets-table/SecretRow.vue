@@ -56,16 +56,22 @@ const editValue = ref(props.secret.value);
 
 async function updateSecret() {
     try {
-        await backendFetch(`/secrets/${props.secret.id}`, {
+        const res = await backendFetch(`/secrets/${props.secret.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ key: editKey.value, value: editValue.value }),
         });
+        if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            const message = body?.error ?? "Error updating secret";
+            toast(message, { type: "error" });
+            return;
+        }
         emit("refresh");
+        isEditing.value = false;
     } catch (error) {
         console.error("Error updating secret:", error);
         toast("Error updating secret", { type: "error" });
-    } finally {
         isEditing.value = false;
     }
 }

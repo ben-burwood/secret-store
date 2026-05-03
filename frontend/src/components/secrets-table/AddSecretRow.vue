@@ -31,16 +31,22 @@ const cancelAddRow = () => {
 
 async function addSecret() {
     try {
-        await backendFetch(`/secrets/new`, {
+        const res = await backendFetch(`/secrets/new`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ key: newKey.value, value: newValue.value }),
         });
+        if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            const message = body?.error ?? "Error adding secret";
+            toast(message, { type: "error" });
+            return;
+        }
         emit("refresh");
+        cancelAddRow();
     } catch (error) {
         console.error("Error adding secret:", error);
         toast("Error adding secret", { type: "error" });
-    } finally {
         cancelAddRow();
     }
 }
