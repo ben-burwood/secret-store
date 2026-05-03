@@ -16,6 +16,7 @@ export default defineConfig({
             "/web": "http://localhost:8080",
         },
     },
+    // @ts-expect-error read by viteplus oxfmt, not by vite itself
     fmt: {
         printWidth: 150,
         tabWidth: 4,
