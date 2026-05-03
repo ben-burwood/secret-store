@@ -1,40 +1,42 @@
-FROM node:latest AS build-vue
+# Stage 1: Build Frontend
+FROM node:latest AS build-frontend
 
 WORKDIR /app/frontend
 
-COPY frontend/package*.json ./
+COPY frontend/package.json frontend/package-lock.json* ./
 
-RUN npm install
+RUN npm ci
 
-COPY frontend/. .
+COPY frontend/ ./
 
-RUN npm run build-only
+RUN npm run build
 
-FROM --platform=$BUILDPLATFORM golang:alpine AS build-go
-
-ARG TARGETOS
-ARG TARGETARCH
+# Stage 2: Build Backend
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS build-backend
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY backend/pyproject.toml backend/uv.lock* ./
 
-RUN go mod download
+RUN uv sync --no-dev --no-install-project
 
-COPY . .
+# Stage 3: Runtime
+FROM python:3.13-slim-bookworm AS runtime
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /server
+WORKDIR /app
 
-FROM scratch
+COPY --from=build-backend /app/.venv /app/.venv
+COPY backend/app/ ./app/
+COPY --from=build-frontend /app/frontend/dist ./static/
+COPY --from=ghcr.io/tarampampam/microcheck:1 /bin/httpcheck /bin/httpcheck
 
-WORKDIR /
-
-COPY --from=build-go /server /server
-COPY --from=build-vue /app/frontend/dist /frontend/dist
+ENV PATH="/app/.venv/bin:$PATH"
+ENV DB_PATH=/data/secret-store.db
 
 EXPOSE 8080
+VOLUME ["/data"]
 
-COPY --from=ghcr.io/tarampampam/microcheck:1 /bin/httpcheck /bin/httpcheck
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 --start-period=10s CMD ["httpcheck", "http://localhost:8080"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD ["httpcheck", "http://localhost:8080/health"]
 
-ENTRYPOINT ["/server"]
+CMD ["python", "-m", "app.main"]

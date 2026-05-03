@@ -2,6 +2,6 @@
     <BasicSecret />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import BasicSecret from "@/components/generate/BasicSecret.vue";
 </script>

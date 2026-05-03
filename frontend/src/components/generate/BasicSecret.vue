@@ -44,7 +44,7 @@
 import { ref } from "vue";
 import SecretDisplay from "@/components/SecretDisplay.vue";
 import { RefreshCcw, ClipboardPlus } from "lucide-vue-next";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 import { toast } from "vue3-toastify";
 
 const length = ref(32);
@@ -63,11 +63,13 @@ async function generateSecret() {
         includeSymbols: includeSymbols.value ? "true" : "false",
     });
     try {
-        const response = await fetch(`${SERVER_URL}/secret/generate?${params.toString()}`);
+        const response = await backendFetch(`/secret/generate?${params.toString()}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         secret.value = data.secret;
     } catch (e) {
-        toast(`Error Generating Secret : ${e.message}`, { type: "error" });
+        const message = e instanceof Error ? e.message : String(e);
+        toast(`Error Generating Secret : ${message}`, { type: "error" });
         console.error(e);
     } finally {
         loading.value = false;

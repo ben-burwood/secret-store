@@ -35,25 +35,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import SecretDisplay from "./SecretDisplay.vue";
-import { Trash, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-vue-next";
-import ConfirmReject from "./secrets-table/ConfirmReject.vue";
+import { ref, computed } from "vue";
+import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-vue-next";
 import SecretRow from "./secrets-table/SecretRow.vue";
 import AddSecretRow from "./secrets-table/AddSecretRow.vue";
-import { toast } from "vue3-toastify";
-import { SERVER_URL } from "@/main";
 import TimerButton from "./secrets-table/TimerButton.vue";
+
+type Secret = { id: number; key: string; value: string };
 
 const showAddRow = ref(false);
 const showSecrets = ref(false);
 
-const props = defineProps({
-    secrets: {
-        type: Array,
-        required: true,
-    },
-});
+const props = defineProps<{ secrets: Secret[] }>();
 
 const emit = defineEmits(["refresh"]);
 

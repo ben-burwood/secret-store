@@ -23,7 +23,7 @@ const props = defineProps({
 const copied = ref(false);
 
 function copySecret() {
-    navigator.clipboard.writeText(props.secret);
+    navigator.clipboard.writeText(props.secret ?? "");
     copied.value = true;
 }
 

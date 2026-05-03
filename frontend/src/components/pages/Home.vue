@@ -17,16 +17,17 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import SecretList from "@/components/SecretList.vue";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 import { toast } from "vue3-toastify";
 
 const secrets = ref([]);
 async function fetchSecrets() {
     try {
-        const response = await fetch(`${SERVER_URL}/secrets`);
+        const response = await backendFetch(`/secrets`);
+        if (!response.ok) return;
         const data = await response.json();
         secrets.value = data.secrets;
     } catch (error) {
@@ -41,11 +42,13 @@ const newValue = ref("");
 
 async function addSecret() {
     try {
-        await fetch(`${SERVER_URL}/secrets/new`, {
+        await backendFetch(`/secrets/new`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ key: newKey.value, value: newValue.value }),
         });
+        newKey.value = "";
+        newValue.value = "";
         fetchSecrets();
     } catch (error) {
         console.error("Error adding secret:", error);

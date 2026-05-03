@@ -1,2 +1,12 @@
-.authkey
-secrets.json
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+*.db
+*.db-shm
+*.db-wal
+backend/static/
+frontend/dist/
+.env
+
+.claude

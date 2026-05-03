@@ -16,13 +16,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 import { toast } from "vue3-toastify";
 
 async function backup() {
     let secrets;
     try {
-        const response = await fetch(`${SERVER_URL}/secrets`);
+        const response = await backendFetch(`/secrets`);
+        if (!response.ok) return;
         const data = await response.json();
         secrets = data;
     } catch (error) {
@@ -43,7 +44,7 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFile = ref<File | null>(null);
 function onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
-    selectedFile.value = input.files && input.files.length > 0 ? input.files[0] : null;
+    selectedFile.value = input.files?.[0] ?? null;
 }
 
 async function restore() {
@@ -66,13 +67,14 @@ async function restore() {
     formData.append("secrets", JSON.stringify(secrets));
 
     try {
-        const response = await fetch(`${SERVER_URL}/restore`, {
+        const response = await backendFetch(`/restore`, {
             method: "POST",
             body: formData,
         });
         if (!response.ok) throw new Error("Restore failed");
     } catch (err) {
-        toast("Restore failed: " + err.message, { type: "error" });
+        const message = err instanceof Error ? err.message : String(err);
+        toast("Restore failed: " + message, { type: "error" });
     }
 }
 </script>

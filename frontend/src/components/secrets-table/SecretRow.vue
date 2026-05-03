@@ -36,12 +36,12 @@ import { ref } from "vue";
 import { Trash, Pencil } from "lucide-vue-next";
 import SecretDisplay from "@/components/SecretDisplay.vue";
 import { toast } from "vue3-toastify";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 import ConfirmReject from "@/components/secrets-table/ConfirmReject.vue";
 
 const props = defineProps<{
     secret: {
-        id: string;
+        id: number | string;
         key: string;
         value: string;
     };
@@ -56,23 +56,29 @@ const editValue = ref(props.secret.value);
 
 async function updateSecret() {
     try {
-        await fetch(`${SERVER_URL}/secrets/${props.secret.id}`, {
+        const res = await backendFetch(`/secrets/${props.secret.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ key: editKey.value, value: editValue.value }),
         });
+        if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            const message = body?.error ?? "Error updating secret";
+            toast(message, { type: "error" });
+            return;
+        }
         emit("refresh");
+        isEditing.value = false;
     } catch (error) {
         console.error("Error updating secret:", error);
         toast("Error updating secret", { type: "error" });
-    } finally {
         isEditing.value = false;
     }
 }
 
 async function deleteSecret() {
     try {
-        await fetch(`${SERVER_URL}/secrets/${props.secret.id}`, { method: "DELETE" });
+        await backendFetch(`/secrets/${props.secret.id}`, { method: "DELETE" });
         emit("refresh");
     } catch (error) {
         console.error("Error deleting secret:", error);
