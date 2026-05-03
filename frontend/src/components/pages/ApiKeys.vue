@@ -11,14 +11,15 @@
                     <th>Name</th>
                     <th>Key</th>
                     <th>Created</th>
+                    <th>Scopes</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <AddApiKeyRow v-if="showAddRow" @refresh="refresh" @cancel="showAddRow = false" />
-                <ApiKeyRow v-for="apiKey in apiKeys" :key="apiKey.id" :apiKey="apiKey" @refresh="refresh" />
+                <ApiKeyRow v-for="apiKey in apiKeys" :key="apiKey.id" :apiKey="apiKey" :secrets="secrets" @refresh="refresh" />
                 <tr v-if="!loading && apiKeys.length === 0 && !showAddRow">
-                    <td colspan="4" class="text-center opacity-60">No API keys yet</td>
+                    <td colspan="5" class="text-center opacity-60">No API keys yet</td>
                 </tr>
             </tbody>
         </table>
@@ -32,19 +33,32 @@ import { backendFetch } from "@/main";
 import ApiKeyRow from "@/components/api-keys-table/ApiKeyRow.vue";
 import AddApiKeyRow from "@/components/api-keys-table/AddApiKeyRow.vue";
 
-type ApiKey = { id: number; name: string; key: string; created_at: string | null };
+type ApiKey = { id: number; name: string; key: string; created_at: string | null; secret_ids: number[] };
+type Secret = { id: number; key: string };
 
 const apiKeys = ref<ApiKey[]>([]);
+const secrets = ref<Secret[]>([]);
 const loading = ref(true);
 const showAddRow = ref(false);
+
+async function fetchApiKeys() {
+    const res = await backendFetch(`/api/keys`);
+    if (!res.ok) return;
+    const data = await res.json();
+    apiKeys.value = data.api_keys ?? [];
+}
+
+async function fetchSecrets() {
+    const res = await backendFetch(`/secrets`);
+    if (!res.ok) return;
+    const data = await res.json();
+    secrets.value = data.secrets ?? [];
+}
 
 async function refresh() {
     loading.value = true;
     try {
-        const res = await backendFetch(`/api/keys`);
-        if (!res.ok) return;
-        const data = await res.json();
-        apiKeys.value = data.api_keys ?? [];
+        await fetchApiKeys();
     } catch (error) {
         console.error("Error fetching API keys:", error);
         toast("Failed to fetch API keys", { type: "error" });
@@ -53,5 +67,8 @@ async function refresh() {
     }
 }
 
-onMounted(refresh);
+onMounted(async () => {
+    await Promise.all([fetchApiKeys(), fetchSecrets()]);
+    loading.value = false;
+});
 </script>
