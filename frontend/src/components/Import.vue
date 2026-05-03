@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 import { toast } from "vue3-toastify";
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -67,7 +67,7 @@ async function importFromFile() {
     formData.append("secrets", JSON.stringify(secrets));
 
     try {
-        const response = await fetch(`${SERVER_URL}/import`, {
+        const response = await backendFetch(`/import`, {
             method: "POST",
             body: formData,
         });

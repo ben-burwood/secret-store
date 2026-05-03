@@ -22,7 +22,7 @@
 import { ref, onMounted } from "vue";
 import SecretDisplay from "@/components/SecretDisplay.vue";
 import { toast } from "vue3-toastify";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 
 const loading = ref(false);
 
@@ -30,9 +30,10 @@ const authKey = ref("");
 async function fetchAuthKey() {
     loading.value = true;
     try {
-        const response = await fetch(`${SERVER_URL}/auth/key`);
+        const response = await backendFetch(`/auth/key`);
+        if (!response.ok) return;
         const data = await response.json();
-        authKey.value = data.key;
+        authKey.value = data.key ?? "";
     } catch (error) {
         console.error("Error fetching Auth key:", error);
         toast("Failed to fetch Auth key", { type: "error" });
@@ -45,7 +46,8 @@ onMounted(fetchAuthKey);
 async function generateAuthKey() {
     loading.value = true;
     try {
-        const response = await fetch(`${SERVER_URL}/auth/key/generate`);
+        const response = await backendFetch(`/auth/key/generate`);
+        if (!response.ok) return;
         const data = await response.json();
         authKey.value = data.key;
     } catch (error) {

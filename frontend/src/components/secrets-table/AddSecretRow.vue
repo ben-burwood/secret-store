@@ -17,7 +17,7 @@
 import { ref } from "vue";
 import ConfirmReject from "@/components/secrets-table/ConfirmReject.vue";
 import { toast } from "vue3-toastify";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 
 const emit = defineEmits(["refresh", "cancel"]);
 
@@ -31,7 +31,7 @@ const cancelAddRow = () => {
 
 async function addSecret() {
     try {
-        await fetch(`${SERVER_URL}/secrets/new`, {
+        await backendFetch(`/secrets/new`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ key: newKey.value, value: newValue.value }),

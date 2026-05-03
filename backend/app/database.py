@@ -19,7 +19,9 @@ class Base(DeclarativeBase):
 
 
 def init_db():
-    pass
+    from app import models  # noqa: F401  (register models on Base.metadata)
+
+    Base.metadata.create_all(engine)
 
 
 def get_session() -> Session:

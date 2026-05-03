@@ -36,12 +36,12 @@ import { ref } from "vue";
 import { Trash, Pencil } from "lucide-vue-next";
 import SecretDisplay from "@/components/SecretDisplay.vue";
 import { toast } from "vue3-toastify";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 import ConfirmReject from "@/components/secrets-table/ConfirmReject.vue";
 
 const props = defineProps<{
     secret: {
-        id: string;
+        id: number | string;
         key: string;
         value: string;
     };
@@ -56,7 +56,7 @@ const editValue = ref(props.secret.value);
 
 async function updateSecret() {
     try {
-        await fetch(`${SERVER_URL}/secrets/${props.secret.id}`, {
+        await backendFetch(`/secrets/${props.secret.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ key: editKey.value, value: editValue.value }),
@@ -72,7 +72,7 @@ async function updateSecret() {
 
 async function deleteSecret() {
     try {
-        await fetch(`${SERVER_URL}/secrets/${props.secret.id}`, { method: "DELETE" });
+        await backendFetch(`/secrets/${props.secret.id}`, { method: "DELETE" });
         emit("refresh");
     } catch (error) {
         console.error("Error deleting secret:", error);

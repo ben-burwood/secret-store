@@ -6,7 +6,6 @@ __pycache__/
 *.db-shm
 *.db-wal
 backend/static/
-backend/cookies.txt
 frontend/dist/
 .env
 

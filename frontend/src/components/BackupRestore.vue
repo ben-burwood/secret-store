@@ -16,13 +16,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { SERVER_URL } from "@/main";
+import { backendFetch } from "@/main";
 import { toast } from "vue3-toastify";
 
 async function backup() {
     let secrets;
     try {
-        const response = await fetch(`${SERVER_URL}/secrets`);
+        const response = await backendFetch(`/secrets`);
+        if (!response.ok) return;
         const data = await response.json();
         secrets = data;
     } catch (error) {
@@ -66,7 +67,7 @@ async function restore() {
     formData.append("secrets", JSON.stringify(secrets));
 
     try {
-        const response = await fetch(`${SERVER_URL}/restore`, {
+        const response = await backendFetch(`/restore`, {
             method: "POST",
             body: formData,
         });

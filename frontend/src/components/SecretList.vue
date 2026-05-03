@@ -42,7 +42,6 @@ import ConfirmReject from "./secrets-table/ConfirmReject.vue";
 import SecretRow from "./secrets-table/SecretRow.vue";
 import AddSecretRow from "./secrets-table/AddSecretRow.vue";
 import { toast } from "vue3-toastify";
-import { SERVER_URL } from "@/main";
 import TimerButton from "./secrets-table/TimerButton.vue";
 
 const showAddRow = ref(false);
