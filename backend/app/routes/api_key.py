@@ -12,15 +12,15 @@ def _is_global():
     return ApiKey.id.not_in(select(api_key_secrets.c.api_key_id))
 
 
-def register_auth_key_routes(app: Robyn):
-    @app.get("/web/auth/key", auth_required=True)
-    async def get_global_auth_key(request: Request):
+def register_api_key_routes(app: Robyn):
+    @app.get("/web/api/key", auth_required=True)
+    async def get_global_api_key(request: Request):
         with get_session() as session:
             row = session.scalars(select(ApiKey).where(_is_global()).order_by(ApiKey.created_at.desc())).first()
             return {"key": row.key if row else None}
 
-    @app.get("/web/auth/key/generate", auth_required=True)
-    async def generate_global_auth_key(request: Request):
+    @app.get("/web/api/key/generate", auth_required=True)
+    async def generate_global_api_key(request: Request):
         new_key = base64.b64encode(pysecrets.token_bytes(32)).decode("ascii")
         with get_session() as session:
             session.execute(delete(ApiKey).where(_is_global()))

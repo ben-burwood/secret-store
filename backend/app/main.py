@@ -7,7 +7,7 @@ from app.config import PORT
 from app.database import init_db
 from app.routes.api import register_api_routes
 from app.routes.auth import register_auth_routes
-from app.routes.auth_key import register_auth_key_routes
+from app.routes.api_key import register_api_key_routes
 from app.routes.generate import router as generate_router
 from app.routes.secrets import register_secrets_routes
 
@@ -21,7 +21,7 @@ async def startup():
 
 
 register_auth_routes(app)
-register_auth_key_routes(app)
+register_api_key_routes(app)
 register_secrets_routes(app)
 register_api_routes(app)
 app.include_router(generate_router)
