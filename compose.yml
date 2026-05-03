@@ -7,6 +7,7 @@ services:
     environment:
       - DASHBOARD_USER=${DASHBOARD_USER:-admin}
       - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:-admin}
+      - ENCRYPTION_KEY # openssl rand -hex 16
     volumes:
       - secret-store-data:/data
 

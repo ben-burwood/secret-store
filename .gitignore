@@ -6,3 +6,5 @@ __pycache__/
 backend/static/
 frontend/dist/
 .env
+
+.claude
