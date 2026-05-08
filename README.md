@@ -16,4 +16,4 @@ However the Enterprise features and complexity are out of scope for a simple Use
 
 The Project is designed to be run as a single Docker Image.
 
-Backend uses Robyn and the Frontend uses Static Vue (served from the Backend). The data is stored in a SQLite Backend.
+Backend uses go and the Frontend uses Static Vue (served from the Backend). The data is stored in a SQLite DB.
