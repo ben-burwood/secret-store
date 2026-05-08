@@ -4,5 +4,5 @@ default:
     just --list
 
 format:
-    Set-Location backend; ruff format
+    gofmt -w .
     Set-Location frontend; vp check --fix
